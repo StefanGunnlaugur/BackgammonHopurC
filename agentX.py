@@ -22,10 +22,10 @@ device = torch.device('cpu')
 
 
 # load to global memory
-w1 = torch.load('X_w1_trained_99.pth')
-w2 = torch.load('X_w2_trained_99.pth')
-b1 = torch.load('X_b1_trained_99.pth')
-b2 = torch.load('X_b2_trained_99.pth')
+w1 = torch.load('./necessary_files/X_w1_trained_99.pth')
+w2 = torch.load('./necessary_files/X_w2_trained_99.pth')
+b1 = torch.load('./necessary_files/X_b1_trained_99.pth')
+b2 = torch.load('./necessary_files/X_b2_trained_99.pth')
 nx = 24 * 2 * 6 + 4
 
 def one_hot_encoding(board, nSecondRoll):
