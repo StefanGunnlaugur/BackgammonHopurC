@@ -8,15 +8,10 @@ Most (if not all) of your agent-develeping code should be written in the agent.p
 Feel free to change this file as you wish but you will only submit your agent 
 so make sure your changes here won't affect his performance.
 """
+import agentX #, agentA, agentB, agentC, agentD, agentE, agentF, agentG ...
+import agentC
 import numpy as np
-import agent
-import flipped_agent
-import torch
-import Model
-from torch.autograd import Variable
-import flipped_agent 
-import matplotlib.pyplot as plt
-#import pubeval
+import time
 
 def init_board():
     # initializes the game board
@@ -159,10 +154,11 @@ def legal_moves(board, dice, player):
             boards.append(update_board(temp_board,m,player))
             
         # second dice:
-        possible_first_moves = legal_move(board, dice[1], player)
-        for m in possible_first_moves:
-            moves.append(np.array([m]))
-            boards.append(update_board(temp_board,m,player))
+        if dice[0] != dice[1]:
+            possible_first_moves = legal_move(board, dice[1], player)
+            for m in possible_first_moves:
+                moves.append(np.array([m]))
+                boards.append(update_board(temp_board,m,player))
             
     return moves, boards 
 
@@ -170,7 +166,7 @@ def update_board(board, move, player):
     # updates the board
     # inputs are some board, one move and the player
     # outputs the updated board
-    board_to_update = np.copy(board) 
+    board_to_update = np.copy(board)
 
     # if the move is there
     if len(move) > 0:
@@ -189,42 +185,23 @@ def update_board(board, move, player):
 
     return board_to_update
     
-    
-def random_agent(board_copy,dice,player,i):
-    # random agent
-    # inputs are the board, the dice and which player is to move
-    # outputs the chosen move randomly
-    
-    # check out the legal moves available for dice throw
-    possible_moves, possible_boards = legal_moves(board_copy, dice, player)
-    
-    # if there are no possible moves, return empty move:
-    if len(possible_moves) == 0: 
-        return []
-    
-    # pick a random move:
-    move = possible_moves[np.random.randint(len(possible_moves))]
-    return move
-    
 
-def play_a_game(modelPlayer,modelPlayerOne,modelPlayerOther,commentary = False,randomAgent=False):
+def is_legal_move(move,board_copy,dice,player,i):
+    if len(move)==0: return True
+    global possible_moves
+    possible_moves, possible_boards = legal_moves(board_copy, dice, player)
+    legit_move = np.array([np.array((possible_move == move)).all() for possible_move in possible_moves]).any()
+    if not legit_move:
+        print("Game forfeited. Player "+str(player)+" made an illegal move")
+        return False
+    return True
+    
+def play_a_game(commentary = False):
     board = init_board() # initialize the board
     player = np.random.randint(2)*2-1 # which player begins?
     
-    modelPlayerOne.Z_w1 = torch.zeros(modelPlayerOne.w1.size(), device = modelPlayerOne.device, dtype = torch.float)
-    modelPlayerOne.Z_b1 = torch.zeros(modelPlayerOne.b1.size(), device = modelPlayerOne.device, dtype = torch.float)
-    modelPlayerOne.Z_w2 = torch.zeros(modelPlayerOne.w2.size(), device = modelPlayerOne.device, dtype = torch.float)
-    modelPlayerOne.Z_b2 = torch.zeros(modelPlayerOne.b2.size(), device = modelPlayerOne.device, dtype = torch.float)
-    
-    modelPlayerOther.Z_w1 = torch.zeros(modelPlayerOther.w1.size(), device = modelPlayerOther.device, dtype = torch.float)
-    modelPlayerOther.Z_b1 = torch.zeros(modelPlayerOther.b1.size(), device = modelPlayerOther.device, dtype = torch.float)
-    modelPlayerOther.Z_w2 = torch.zeros(modelPlayerOther.w2.size(), device = modelPlayerOther.device, dtype = torch.float)
-    modelPlayerOther.Z_b2 = torch.zeros(modelPlayerOther.b2.size(), device = modelPlayerOther.device, dtype = torch.float)
-
-    #pretty_print(board)
     # play on
     while not game_over(board) and not check_for_error(board):
-    #for okei in range(2):
         if commentary: print("lets go player ",player)
         
         # roll dice
@@ -233,108 +210,57 @@ def play_a_game(modelPlayer,modelPlayerOne,modelPlayerOther,commentary = False,r
             
         # make a move (2 moves if the same number appears on the dice)
         for i in range(1+int(dice[0] == dice[1])):
-            board_copy = np.copy(board) 
-            # make the move (agent vs agent):
-            #move = agent.action(board_copy,dice,player,i)
+            global move
+            board_copy = np.copy(board)
             
-             #if you're playing vs random agent:
-            if(randomAgent):
-                if player == 1:
-                    if(modelPlayer == 1):
-                        move = agent.action(board_copy,dice,player,i,modelPlayerOne)
-                    else:
-                        move = agent.action(board_copy,dice,player,i,modelPlayerOther)
-                elif player == -1:
-                    move = random_agent(board_copy,dice,player,i)
-                    #move = pubeval.agent_pubeval(board_copy,  dice,  player)
-            else:
-                if player == 1:
-                    move = agent.action(board_copy,dice,player,i,modelPlayerOne)
-                elif player == -1:
-                    move = flipped_agent.action(board_copy,dice,player,i,modelPlayerOther)
-                
+            if player == 1:
+                move = agentX.action(board_copy,dice,player,i) 
+            elif player == -1:
+                move = agentC.action(board_copy,dice,player,i) 
+            
+            # check if the move is legit, break the for loop if not
+            legit_move = is_legal_move(move,board_copy,dice,player,i)
+            if not legit_move: break
+        
             # update the board
             if len(move) != 0:
                 for m in move:
                     board = update_board(board, m, player)
-            
+                                
             # give status after every move:         
             if commentary: 
                 print("move from player",player,":")
                 pretty_print(board)
                 
+        # if the move was not legit, break the while loop, forfeiting the point
+        if not legit_move: break
+    
         # players take turns 
         player = -player
-
-    modelPlayerOne.gameFinishedUpdate(-1*player)
-    #modelPlayerOne.dynaUpdate()
-    modelPlayerOther.gameFinishedUpdate(-1*player)
-    #modelPlayerOther.dynaUpdate()
-        #if(game_over(board)):
-         #   pretty_print(board)
+            
     # return the winner
     return -1*player
 
-dataP1 = []
-dataP2 = []
 def main():
-    import time
-    start = time.time()
-    modelPlayerOne = Model.Model(1,False,14000,0.95,0.0005)
-    modelPlayerOther = Model.Model(-1,False,14000,0.95,0.001)
-    totalTrained = 0
-    for a in range(40):
-        startA = time.time()
-        print('Training')
-        if a > 0:
-            modelPlayerOne.gamesWon = 0
-            modelPlayerOther.gamesWon = 0
-            for b in range(1000):
-                if(b%100 == 0):
-                    print(b)
-                totalTrained += 1
-                play_a_game(1,modelPlayerOne,modelPlayerOther,commentary=False,randomAgent=False)
-            modelPlayerOne.saveNetwork(totalTrained)
-            modelPlayerOther.saveNetwork(totalTrained)
-            print('Player One',modelPlayerOne.gamesWon)
-            print('Other Player',modelPlayerOther.gamesWon)
-        nGames = 100 # how many games?
-        winners = {}; winners["1"]=0; winners["-1"]=0; # Collecting stats of the games
-        print('Player One playing against random...')
-        for g in range(nGames):   
-            winner = play_a_game(1,modelPlayerOne,modelPlayerOther,commentary=False,randomAgent=True)
-            winners[str(winner)] += 1
-        dataP1.append(winners["1"])
-        print("Out of", nGames, "games,")
-        print("playerOne", 1, "won", winners["1"],"times and")
-        print("Random", -1, "won", winners["-1"],"times")
-        endA = time.time()
-        print("timi a run nr. ", a, ' tok:', (endA-startA), " sec")
-        nGames = 100 # how many games?
-        winners = {}; winners["1"]=0; winners["-1"]=0; # Collecting stats of the games
-        print('Other Player playing agains random...')
-        for s in range(nGames): 
-            winner = play_a_game(0,modelPlayerOne,modelPlayerOther,commentary=False,randomAgent=True)
-            winners[str(winner)] += 1
-        dataP2.append(winners["1"])
-        print("Out of", nGames, "games,")
-        print("playerOther", 1, "won", winners["1"],"times and")
-        print("Random", -1, "won", winners["-1"],"times")
-        endA = time.time()
-        print("timi á run nr. ", a, ' tok:', (endA-startA), " sec")
-    
-    end = time.time()
-    print(end - start)
-    plt.plot(range(len(dataP1)), dataP1, 'r')
-    plt.plot(range(len(dataP2)), dataP2, 'b')
-    plt.show()
+    startTime=time.time()
+    winners = {}; winners["1"]=0; winners["-1"]=0; # Collecting stats of the games
+    nGames = 100 # how many games?
+    for g in range(nGames):
+        winner = play_a_game(commentary=False)
+        winners[str(winner)] += 1
+        
+        if(g % 20 == 0):
+            print('agentX',  winners["1"], 'agentLilBitch',  winners["-1"])
+    print("Out of", nGames, "games,")
+    print("player", 1, "won", winners["1"],"times and")
+    print("player", -1, "won", winners["-1"],"times")
+    runTime=time.time()-startTime
+    print("runTime:", runTime)
+    print("average time:", np.mean(runTime/nGames), "sec/game")
 
+    
 if __name__ == '__main__':
-    try:
-        main()
-    except KeyboardInterrupt:
-        print ('Interrupted')
-        plt.plot(range(len(dataP1)), dataP1, 'r')
-        plt.plot(range(len(dataP2)), dataP2, 'b')
-        plt.show()
-        sys.exit(0)
+    main()
+    
+    
+
