@@ -22,20 +22,20 @@ device = torch.device('cpu')
 
 
 # load to global memory
-w1 = torch.load('./trainedWeights/w1_C_125000lambda0.95DynaP1.pth')
-w2 = torch.load('./trainedWeights/w2_C_125000lambda0.95DynaP1.pth')
-b1 = torch.load('./trainedWeights/b1_C_125000lambda0.95DynaP1.pth')
-b2 = torch.load('./trainedWeights/b2_C_125000lambda0.95DynaP1.pth')
+#w1 = torch.load('./trainedWeights/w1_C_125000lambda0.95DynaP1.pth')
+#w2 = torch.load('./trainedWeights/w2_C_125000lambda0.95DynaP1.pth')
+#b1 = torch.load('./trainedWeights/b1_C_125000lambda0.95DynaP1.pth')
+#b2 = torch.load('./trainedWeights/b2_C_125000lambda0.95DynaP1.pth')
 
 #w1 = torch.load('./trainedWeights/w1_C_100000lambda0.95.pth')
 #w2 = torch.load('./trainedWeights/w2_C_100000lambda0.95.pth')
 #b1 = torch.load('./trainedWeights/b1_C_100000lambda0.95.pth')
 #b2 = torch.load('./trainedWeights/b2_C_100000lambda0.95.pth')
 
-#w1 = torch.load('C_w1_trained_99000.pth')
-#w2 = torch.load('C_w2_trained_99000.pth')
-#b1 = torch.load('C_b1_trained_99000.pth')
-#b2 = torch.load('C_b2_trained_99000.pth')
+w1 = torch.load('C_w1_trained_99000.pth')
+w2 = torch.load('C_w2_trained_99000.pth')
+b1 = torch.load('C_b1_trained_99000.pth')
+b2 = torch.load('C_b2_trained_99000.pth')
 
 
 
