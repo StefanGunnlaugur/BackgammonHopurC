@@ -9,7 +9,7 @@ Feel free to change this file as you wish but you will only submit your agent
 so make sure your changes here won't affect his performance.
 """
 import agentX #, agentA, agentB, agentC, agentD, agentE, agentF, agentG ...
-import agentC
+import agentBigBoy
 import numpy as np
 import time
 
@@ -216,7 +216,7 @@ def play_a_game(commentary = False):
             if player == 1:
                 move = agentX.action(board_copy,dice,player,i) 
             elif player == -1:
-                move = agentC.action(board_copy,dice,player,i) 
+                move = agentBigBoy.action(board_copy,dice,player,i) 
             
             # check if the move is legit, break the for loop if not
             legit_move = is_legal_move(move,board_copy,dice,player,i)
