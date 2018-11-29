@@ -10,6 +10,7 @@ so make sure your changes here won't affect his performance.
 """
 import agentX #, agentA, agentB, agentC, agentD, agentE, agentF, agentG ...
 import agentBigBoy
+import agentBigBoySenior
 import numpy as np
 import time
 
@@ -214,7 +215,7 @@ def play_a_game(commentary = False):
             board_copy = np.copy(board)
             
             if player == 1:
-                move = agentX.action(board_copy,dice,player,i) 
+                move = agentBigBoySenior.action(board_copy,dice,player,i) 
             elif player == -1:
                 move = agentBigBoy.action(board_copy,dice,player,i) 
             
@@ -250,7 +251,7 @@ def main():
         winners[str(winner)] += 1
         
         if(g % 20 == 0):
-            print('agentX',  winners["1"], 'agentLilBitch',  winners["-1"])
+            print('Senior',  winners["1"], 'BigBoy',  winners["-1"])
     print("Out of", nGames, "games,")
     print("player", 1, "won", winners["1"],"times and")
     print("player", -1, "won", winners["-1"],"times")

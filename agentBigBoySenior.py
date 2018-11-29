@@ -22,15 +22,10 @@ device = torch.device('cpu')
 
 
 # load to global memory
-#w1 = torch.load('./necessary_files/C_w1_trained_99000.pth')
-#w2 = torch.load('./necessary_files/C_w2_trained_99000.pth')
-#b1 = torch.load('./necessary_files/C_b1_trained_99000.pth')
-#b2 = torch.load('./necessary_files/C_b2_trained_99000.pth')
-
-w1 = torch.load('./necessary_files/w1_C_125000lambda0.95DynaP1.pth')
-w2 = torch.load('./necessary_files/w2_C_125000lambda0.95DynaP1.pth')
-b1 = torch.load('./necessary_files/b1_C_125000lambda0.95DynaP1.pth')
-b2 = torch.load('./necessary_files/b2_C_125000lambda0.95DynaP1.pth')
+w1 = torch.load('./necessary_files/w1_trained-19000-player--1-lam-0.99-alpha-0.001.pth')
+w2 = torch.load('./necessary_files/w2_trained-19000-player--1-lam-0.99-alpha-0.001.pth')
+b1 = torch.load('./necessary_files/b1_trained-19000-player--1-lam-0.99-alpha-0.001.pth')
+b2 = torch.load('./necessary_files/b2_trained-19000-player--1-lam-0.99-alpha-0.001.pth')
 
 
 
